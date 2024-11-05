@@ -103,6 +103,10 @@ class UsersService {
     };
   }
 
+  async getUsers() {
+    return UsersCollection.find();
+  }
+
   async resetToken(user) {
     const email = user.email;
     const resetToken = TokensService.generateResetToken({email});

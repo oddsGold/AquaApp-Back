@@ -21,6 +21,8 @@ usersRouter.post('/auth/logout', ctrlWrapper(UserController.logout));
 usersRouter.get('/account', authenticate, ctrlWrapper(UserController.getCurrentUser)); //get info about logged in user
 usersRouter.patch('/account', authenticate, upload.single('avatar'), validateBody(validateUserUpdate), ctrlWrapper(UserController.patchUser)); //update user
 usersRouter.get('/users', ctrlWrapper(UserController.getUsersLength)); //get users length
+usersRouter.get('/all/users', authenticate, ctrlWrapper(UserController.getUsers)); //get all users
+usersRouter.get('/find/:userId', ctrlWrapper(UserController.getUser)); //get user
 usersRouter.post('/auth/send-email', validateBody(resetEmailSchema), ctrlWrapper(UserController.resetEmail));
 usersRouter.post('/auth/reset-pwd',validateBody(resetPasswordSchema), ctrlWrapper(UserController.resetPassword));
 

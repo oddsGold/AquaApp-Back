@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import TokensService from "../services/tokens.js";
 import { env } from '../utils/env.js';
 import FileService from '../utils/file-service.js';
+import req from 'express/lib/request.js';
 
 class UserController {
 
@@ -170,6 +171,38 @@ class UserController {
       status: 200,
       message: 'Successfully retrieved user count',
       data: userData,
+    });
+  }
+
+  async getUsers(req, res, next) {
+    const users = await UsersService.getUsers();
+
+    if(!users) {
+      return next(createHttpError(401, 'Users not found'));
+    }
+
+    res.json({
+      status: 200,
+      message: 'Successfully found users',
+      data: users,
+    });
+  }
+
+  async getUser(req, res, next){
+    const{ userId } = req.params;
+
+    const user = await UsersService.getUserById(userId);
+
+    if(!user){
+      throw createHttpError(401, 'User not found');
+    }
+
+    res.json({
+      status: 200,
+      message: 'Successfully sent user info!',
+      data: {
+        user
+      },
     });
   }
 

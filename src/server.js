@@ -8,13 +8,17 @@ import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import cookieParser from 'cookie-parser';
 import { swaggerDocs } from './middlewares/swaggerDocs.js';
 import { UPLOAD_DIR } from './constants/index.js';
+import { Server } from "socket.io";
+import { createServer } from 'node:http';
+import SocketController from './controllers/socket-controller.js';
 
 const PORT = Number(env('PORT', '3000'));
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    callback(null, true);
-  },
+  // origin: (origin, callback) => {
+  //   callback(null, true);
+  // },
+  origin:'http://localhost:5173',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   credentials: true,
   optionsSuccessStatus: 200,
@@ -22,17 +26,29 @@ const corsOptions = {
 
 export const startServer = () => {
   const app = express();
+  const server = createServer(app);
+  const io = new Server(server, {
+    cors: {
+      origin: 'http://localhost:5173',
+      methods: ['GET', 'POST'],
+      credentials: true,
+    }
+  });
 
   app.use(cors(corsOptions));
-  app.options('*', cors(corsOptions));
+  // app.options('*', cors(corsOptions));
 
   app.use(express.json());
   app.use(cookieParser());
 
   app.use(
     pino({
+      level: 'error',
       transport: {
         target: 'pino-pretty',
+        options: {
+          colorize: true,
+        },
       },
     }),
   );
@@ -40,18 +56,22 @@ export const startServer = () => {
   app.use(router);
   app.use('/api-docs', swaggerDocs());
   app.use('/uploads', express.static(UPLOAD_DIR));
+  app.use('*', notFoundHandler);
+  app.use(errorHandler);
 
-  app.get('/', (req, res) => {
-    res.json({
-      message: 'Hello World!',
+  io.on('connection', (socket) => {
+    socket.on("addNewUser", (userId) => {
+      const response = SocketController.addOnlineUsers(socket.id, userId);
+      io.emit("getOnlineUsers", response);
+    });
+
+    socket.on("disconnect", () => {
+      const response = SocketController.removeUser(socket.id);
+      io.emit("getOnlineUsers", response);
     });
   });
 
-  app.use('*', notFoundHandler);
-
-  app.use(errorHandler);
-
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 };
