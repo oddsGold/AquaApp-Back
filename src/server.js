@@ -65,6 +65,14 @@ export const startServer = () => {
       io.emit("getOnlineUsers", response);
     });
 
+    socket.on("sendMessage", (message) => {
+      const user = SocketController.sendMessage(message);
+
+      if(user) {
+        io.to(user.socketId).emit("getMessage", message);
+      }
+    })
+
     socket.on("disconnect", () => {
       const response = SocketController.removeUser(socket.id);
       io.emit("getOnlineUsers", response);

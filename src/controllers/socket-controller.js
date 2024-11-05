@@ -17,6 +17,11 @@ class SocketController {
     this.onlineUsers = this.onlineUsers.filter((user) => user.socketId !== socketId);
     return this.onlineUsers;
   }
+
+  sendMessage(message) {
+    return this.onlineUsers.find(user => user.userId === message.recipientId);
+  }
 }
 
-export default new SocketController();
+const instance = new SocketController();
+export default instance;
