@@ -18,7 +18,7 @@ const corsOptions = {
   // origin: (origin, callback) => {
   //   callback(null, true);
   // },
-  origin:'https://aqua-app-front-5ikab6mbt-oddsgolds-projects.vercel.app',
+  origin:'https://aqua-app-front.vercel.app',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   credentials: true,
   optionsSuccessStatus: 200,
@@ -29,7 +29,7 @@ export const startServer = () => {
   const server = createServer(app);
   const io = new Server(server, {
     cors: {
-      origin: 'https://aqua-app-front-5ikab6mbt-oddsgolds-projects.vercel.app',
+      origin: 'https://aqua-app-front.vercel.app',
       methods: ['GET', 'POST'],
       credentials: true,
     }
